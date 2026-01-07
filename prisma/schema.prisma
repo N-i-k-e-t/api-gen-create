@@ -1,0 +1,28 @@
+// Minimal Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ExcelData {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now()) // Derived from Excel or upload date
+  rawData   String   // Stored as JSON string
+  createdAt DateTime @default(now())
+
+  @@map("excel_data")
+}
+
+model SystemKey {
+  id        String   @id @default(uuid())
+  keyHash   String   // Bcrypt hash of the API key
+  keyPrefix String   // First few chars for display
+  createdAt DateTime @default(now())
+
+  @@map("system_keys")
+}
