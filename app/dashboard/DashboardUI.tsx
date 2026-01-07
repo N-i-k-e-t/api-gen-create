@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, RefreshCw, Key, Database, FileSpreadsheet, Lock, CheckCircle, AlertCircle, LogOut } from 'lucide-react';
+import { Upload, RefreshCw, Key, Database, FileSpreadsheet, Lock, CheckCircle, AlertCircle, LogOut, Copy } from 'lucide-react';
 
 interface DashboardUIProps {
     currentKeyPrefix: string | undefined | null;
@@ -23,10 +23,12 @@ export default function DashboardUI({ currentKeyPrefix }: DashboardUIProps) {
     // Data Preview State
     const [dataPreview, setDataPreview] = useState<any>(null);
     const [loadingData, setLoadingData] = useState(true);
+    const [apiUrl, setApiUrl] = useState('');
 
     // Fetch Data Preview on Mount and after Upload
     const refreshData = async () => {
         setLoadingData(true);
+        setApiUrl(`${window.location.origin}/api/data`);
         try {
             const res = await fetch('/api/data');
             if (res.ok) {
@@ -98,6 +100,11 @@ export default function DashboardUI({ currentKeyPrefix }: DashboardUIProps) {
         await fetch('/api/auth/logout', { method: 'POST' });
         router.push('/login');
         router.refresh();
+    };
+
+    const copyUrl = () => {
+        navigator.clipboard.writeText(apiUrl);
+        alert('API URL copied to clipboard!');
     };
 
     return (
@@ -196,10 +203,19 @@ export default function DashboardUI({ currentKeyPrefix }: DashboardUIProps) {
 
                 {/* Data Preview */}
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Live Data Preview</h2>
-                        <div className="text-xs text-zinc-500 font-mono">
-                            GET /api/data
+                    <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 className="text-lg font-semibold">Live Data Preview</h2>
+                            <p className="text-sm text-zinc-500">Your API is ready to serve data.</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-950 p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 w-full md:w-auto">
+                            <code className="text-xs text-zinc-600 dark:text-zinc-400 font-mono flex-1 px-2 truncate max-w-[300px]">
+                                {apiUrl || 'Loading URL...'}
+                            </code>
+                            <button onClick={copyUrl} className="p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors" title="Copy URL">
+                                <Copy className="w-4 h-4 text-zinc-500" />
+                            </button>
                         </div>
                     </div>
 
